@@ -156,7 +156,7 @@ end
 
 ```
 
-## Adding User's sign out link
+## Display user's email and sign out link
 
 ```html
 <!-- /app/views/layouts/application.html.erb -->
@@ -170,7 +170,9 @@ end
     <%= csrf_meta_tags %>
   </head>
   <body>
-
+    <% if user_signed_in? %>
+      <p>Logged in as <%= current_user.email %> </p>
+    <% end %>
   <%= yield %>
   <br> <br>
   <% if user_signed_in? %>
@@ -180,6 +182,7 @@ end
 </html>
 
 ```
+
 
 ## Views-Blogs
 

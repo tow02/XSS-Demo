@@ -155,3 +155,89 @@ Rails.application.routes.draw do
 end
 
 ```
+
+## Adding User's sign out link
+
+```html
+<!-- /app/views/layouts/application.html.erb -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>XSSDemo</title>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+
+  <%= yield %>
+  <br> <br>
+  <% if user_signed_in? %>
+    <%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+  <% end %>
+  </body>
+</html>
+
+```
+
+## Views-Blogs
+
+`blogs/index.html.erb`
+
+```html
+<!-- /app/views/blogs/index.html.erb -->
+
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Blogs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Content</th>
+      <th>User</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @blogs.each do |blog| %>
+      <tr>
+        <td><%= blog.content %></td>
+        <td><%= blog.user_id %></td>
+        <td><%= link_to 'Show', blog %></td>
+        <td><%= link_to 'Edit', edit_blog_path(blog) %></td>
+        <td><%= link_to 'Destroy', blog, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Blog', new_blog_path %>
+```
+
+`blogs/show.html.erb`
+
+```html
+<!-- /app/views/blogs/show.html.erb -->
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Content:</strong>
+  <%= @blog.content %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @blog.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_blog_path(@blog) %> |
+<%= link_to 'Back', blogs_path %>
+
+```
+

@@ -46,7 +46,7 @@ Then run `bundle install` in the terminal.
 $ bundle install
 ```
 
-If `bundle install` can not be executed successfully, try deleting `Gemfile.lock` then run bundle install in the terminal again.
+If `bundle install` can not be executed successfully, try deleting `Gemfile.lock` then run `bundle install` in the terminal again.
 
 ## Generating Models
 
@@ -193,8 +193,6 @@ end
 
 ## Views-Blogs
 
-`blogs/index.html.erb`
-
 ```html
 <!-- /app/views/blogs/index.html.erb -->
 
@@ -229,7 +227,6 @@ end
 <%= link_to 'New Blog', new_blog_path %>
 ```
 
-`blogs/show.html.erb`
 
 ```html
 <!-- /app/views/blogs/show.html.erb -->
@@ -254,7 +251,7 @@ end
 
 ## Cross-site scripting (XSS) Example
 
-In this example, I'm going to simulate the situation where the user1 creates the content for blog and it lives inside `<script></script>` html tag. Then, we are going to let the user2 goes to view user1's blog page.
+In this example, we are going to simulate the situation where the `user1` creates the content for blog and it lives inside `<script></script>` html tag. Then, we are going to let the `user2` goes to view `user1's` blog page.
 
 On `/app/views/blogs/show.html.erb`, we will render `@blog.content` as `HTML` instead of plain text by using `raw`, `<%== %>`, `sanitize`, and `.html_safe` to see which one is the safest function to use.
 
@@ -311,13 +308,11 @@ In `/app/views/blogs/show.html.erb` we will first use `raw` function to render `
 <%= link_to 'Back', blogs_path %>
 ```
 
-After you have updated `/app/views/blogs/show.html.erb`, restart the server and then go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that the content is not being displayed anymore. Instead, the javascript that we inserted before is being executed. This is because `raw` function renders content without escaping a string. (See more on [Ruby on Rails API](http://api.rubyonrails.org/classes/ActionView/Helpers/OutputSafetyHelper.html))
+After you have updated `/app/views/blogs/show.html.erb`, restart the server and then go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that the content is not being displayed anymore. Instead, the javascript code that was inserted by `user1` before is being executed. This is because `raw` function renders content without escaping a string. (See more on [Ruby on Rails API](http://api.rubyonrails.org/classes/ActionView/Helpers/OutputSafetyHelper.html))
 
 ![Image](vendor/assets/images/show-raw.png)
 
 #### Using `<%== %>`
-
-Now in `/app/views/blogs/show.html.erb`, change `<%= raw @blog.content %>` into `<%= raw @blog.content %>`
 
 ```html
 <!-- /app/views/blogs/show.html.erb -->
@@ -339,7 +334,7 @@ Now in `/app/views/blogs/show.html.erb`, change `<%= raw @blog.content %>` into 
 
 ```
 
-Then restart the server and go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that it is the same result as we use `raw` function to render `@blog.content`.
+Restart the server and go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that it gives the same result as we use `raw` function to render `@blog.content`.
 
 ![Image](vendor/assets/images/show-erb.png)
 
@@ -397,4 +392,4 @@ Again, restart the server and go to [http://localhost:3000/blogs/1](http://local
 
 ## Conclusion
 
-In conslusion, using `sanitize` function to render html is the safest way to do so. The reason is because `sanitize` function will remove all tags and attributes of `HTML` that are unsafe. However, using `sanitize` function for sanitizing input string from the user does not guarantee that the result of rendering `HTML` will be in the right format. The output can contain unescaped characters such as `<`, `>`, or `&`.
+In conslusion, using `sanitize` function to render html is the safest way to do so. The reason is because `sanitize` function will remove all tags and attributes of `HTML` that are unsafe. However, using `sanitize` function for sanitizing input string from the user does not guarantee that the result of rendered `HTML` will be in the right format. The output can contain unescaped characters such as `<`, `>`, or `&`.

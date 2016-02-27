@@ -1,9 +1,11 @@
 # XSS-Demo
+> ICCS474 Cross-site Scripting Demo Homework
 
 ## Starting Project
 
 ```bash
 $ rails new XSS-Demo --skip-spring 
+$ cd XSS-Demo
 ```
 
 Edit your `Gemfile` into this.
@@ -170,14 +172,19 @@ end
     <%= csrf_meta_tags %>
   </head>
   <body>
+
     <% if user_signed_in? %>
-      <p>Logged in as <%= current_user.email %> </p>
+    <p>Logged in as
+      <%= current_user.email %>
+    </p>
     <% end %>
-  <%= yield %>
-  <br> <br>
-  <% if user_signed_in? %>
+
+    <%= yield %>
+    <br>
+    <br>
+    <% if user_signed_in? %>
     <%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
-  <% end %>
+    <% end %>
   </body>
 </html>
 
@@ -250,3 +257,144 @@ end
 In this example, I'm going to simulate the situation where the user1 creates the content for blog and it lives inside `<script></script>` html tag. Then, we are going to let the user2 goes to view user1's blog page.
 
 On `/app/views/blogs/show.html.erb`, we will render `@blog.content` as `HTML` instead of plain text by using `raw`, `<%== %>`, `sanitize`, and `.html_safe` to see which one is the safest function to use.
+
+### Creating blog
+
+* Starting the server by run `rails server` in the terminal.
+* Go to [localhost:3000](http://localhost:3000)
+* Log in as `user1@cs474.com`
+* Password: `12345678`
+
+
+![Image](vendor/assets/images/user1-login.png)
+![Image](vendor/assets/images/user1-index.png)
+
+* Go to [New Blog](http://localhost:3000/blogs/new) and insert the following content with user_id 1
+
+![Image](vendor/assets/images/user1-new-blog.png)
+
+* Click `Create Blog` button
+
+![Image](vendor/assets/images/user1-blog1.png)
+
+* Then click on `Sign out` link.
+
+### Viewing blog
+
+* Go to [localhost:3000](http://localhost:3000)
+* Log in as `user2@cs474.com`
+* Password: `12345678`
+
+![Image](vendor/assets/images/user2-login.png)
+![Image](vendor/assets/images/user2-index.png)
+
+#### Using `raw`
+
+In `/app/views/blogs/show.html.erb` we will first use `raw` function to render `@blog.content`
+
+```html
+<!-- /app/views/blogs/show.html.erb -->
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Content:</strong>
+  <%= raw @blog.content %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @blog.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_blog_path(@blog) %> |
+<%= link_to 'Back', blogs_path %>
+```
+
+After you have updated `/app/views/blogs/show.html.erb`, restart the server and then go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that the content is not being displayed anymore. Instead, the javascript that we inserted before is being executed. This is because `raw` function renders content without escaping a string. (See more on [Ruby on Rails API](http://api.rubyonrails.org/classes/ActionView/Helpers/OutputSafetyHelper.html))
+
+![Image](vendor/assets/images/show-raw.png)
+
+#### Using `<%== %>`
+
+Now in `/app/views/blogs/show.html.erb`, change `<%= raw @blog.content %>` into `<%= raw @blog.content %>`
+
+```html
+<!-- /app/views/blogs/show.html.erb -->
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Content:</strong>
+  <%== @blog.content %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @blog.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_blog_path(@blog) %> |
+<%= link_to 'Back', blogs_path %>
+
+```
+
+Then restart the server and go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that it is the same result as we use `raw` function to render `@blog.content`.
+
+![Image](vendor/assets/images/show-erb.png)
+
+#### Using `sanitize`
+
+```html
+<!-- /app/views/blogs/show.html.erb -->
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Content:</strong>
+  <%= sanitize @blog.content %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @blog.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_blog_path(@blog) %> |
+<%= link_to 'Back', blogs_path %>
+
+```
+
+Restart server and go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that only the content inside `<script></script>` is shown. This is because `sanitize` function clean up all the `HTML` tags and `href/src` that can be exploited like `javascript`.
+
+![Image](vendor/assets/images/show-sanitize.png)
+
+#### Using `.html_safe`
+
+```html
+<!-- /app/views/blogs/show.html.erb -->
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Content:</strong>
+  <%= @blog.content.html_safe %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @blog.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_blog_path(@blog) %> |
+<%= link_to 'Back', blogs_path %>
+
+```
+
+Again, restart the server and go to [http://localhost:3000/blogs/1](http://localhost:3000/blogs/1). You will see that using `.html_safe` gives us the same result as `raw` and `<%== =`. This is because `.html_safe` marks an input string as trusted safe. Therefore, any input string that is inserted into `HTML` will not be escaping. (See more on [html_safe](http://apidock.com/rails/String/html_safe)) 
+
+![Image](vendor/assets/images/show-html_safe.png)
+
+## Conclusion
+
+In conslusion, using `sanitize` function to render html is the safest way to do so. The reason is because `sanitize` function will remove all tags and attributes of `HTML` that are unsafe. However, using `sanitize` function for sanitizing input string from the user does not guarantee that the result of rendering `HTML` will be in the right format. The output can contain unescaped characters such as `<`, `>`, or `&`.

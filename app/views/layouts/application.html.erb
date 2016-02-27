@@ -8,14 +8,17 @@
   </head>
   <body>
 
-  <% if user_signed_in? %>
-    <p>Logged in as <%= current_user.email %> </p>
-  <% end %>
+    <% if user_signed_in? %>
+    <p>Logged in as
+      <%= current_user.email %>
+    </p>
+    <% end %>
 
-  <%= yield %>
-  <br> <br>
-  <% if user_signed_in? %>
+    <%= yield %>
+    <br>
+    <br>
+    <% if user_signed_in? %>
     <%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
-  <% end %>
+    <% end %>
   </body>
 </html>

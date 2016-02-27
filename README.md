@@ -6,7 +6,7 @@
 $ rails new XSS-Demo --skip-spring 
 ```
 
-Edit your `Gemfile` into this
+Edit your `Gemfile` into this.
 
 ```ruby
 # /Gemfile
@@ -38,7 +38,7 @@ end
 
 ```
 
-Then run `bundle install` in the terminal
+Then run `bundle install` in the terminal.
 
 ```
 $ bundle install
@@ -50,7 +50,7 @@ If `bundle install` can not be executed successfully, try deleting `Gemfile.lock
 
 ### User Model
 
-We are going to use [gem devise](https://github.com/plataformatec/devise) for authenticating the user. So first, run the following command into the terminal
+We are going to use [gem devise](https://github.com/plataformatec/devise) for authenticating the user. So first, run the following command into the terminal.
 
 ```bash
 $ rails generate devise:install
@@ -78,7 +78,7 @@ Next, we are going to create `Blog` model that has `content:text` and `user:refe
 $ rails generate scaffold Blog content:text user:references
 ```
 
-After you generated 2 models, don't forget to run `rake db:migrate` in your terminal
+After you generated 2 models, don't forget to run `rake db:migrate` in your terminal.
 
 ```bash
 $ rake db:migrate
@@ -123,11 +123,24 @@ end
 end
 ```
 
-Then run `rake db:seed` in the terminal
+Then run `rake db:seed` in the terminal.
 
 ```bash
 $ rake db:seed
 ```
 
+## User-Authentication
+
+We want the user to be authenticated before creating the blog, so we need to add `before_action` into ApplicationController.
+
+```ruby
+# /app/controllers/application_controller.rb
+
+class ApplicationController < ActionController::Base
+	.
+	.
+  before_action :authenticate_user!
+end
+```
 
  

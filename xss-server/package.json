@@ -1,0 +1,9 @@
+{
+  "name": "xss-server",
+  "version": "1.0.0",
+  "description": "server for xss",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4"
+  }
+}
